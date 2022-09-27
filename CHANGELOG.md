@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/StanGirard/yatas-template/compare/v1.3.0...v1.4.0) (2022-09-27)
+
+
+### Features
+
+* **plugin:** increased protocol version ([a260154](https://github.com/StanGirard/yatas-template/commit/a260154f5e66ccabe359e70426fa4eec43980b7b))
+
 ## [1.3.0](https://github.com/StanGirard/yatas-template/compare/v1.2.0...v1.3.0) (2022-09-26)
 
 
