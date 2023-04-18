@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 
-	"github.com/stangirard/yatas/plugins/commons"
+	"github.com/padok-team/yatas/plugins/commons"
 )
 
 type YatasPlugin struct {
