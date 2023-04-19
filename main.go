@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 
+	"github.com/padok-team/yatas-template/logger"
 	"github.com/padok-team/yatas/plugins/commons"
 )
 
@@ -15,8 +16,9 @@ type YatasPlugin struct {
 }
 
 // Don't remove this function
+// This function is called by YATAS through the RPC
 func (g *YatasPlugin) Run(c *commons.Config) []commons.Tests {
-	g.logger.Debug("message from Yatas Template Plugin")
+	logger.Logger = g.logger
 	var err error
 	if err != nil {
 		panic(err)
@@ -25,7 +27,7 @@ func (g *YatasPlugin) Run(c *commons.Config) []commons.Tests {
 
 	checks, err := runPlugin(c, "template")
 	if err != nil {
-		g.logger.Error("Error running plugins", "error", err)
+		logger.Logger.Error("Error running plugins", "error", err)
 	}
 	checksAll = append(checksAll, checks...)
 	return checksAll
@@ -58,8 +60,6 @@ func main() {
 	var pluginMap = map[string]plugin.Plugin{
 		"template": &commons.YatasPlugin{Impl: yatasPlugin},
 	}
-
-	logger.Debug("message from plugin", "foo", "bar")
 
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: handshakeConfig,
