@@ -11,24 +11,39 @@ import (
 	"github.com/padok-team/yatas/plugins/commons"
 )
 
+// Global variable that stores the plugin name
+//
+// TODO: Change the name of the plugin
+var PluginName string = "template"
+
 type YatasPlugin struct {
 	logger hclog.Logger
 }
 
-// Don't remove this function
-// This function is called by YATAS through the RPC
+// Don't remove this function.
+// This function is called by YATAS through the RPC.
+// This is the entrypoint of the plugin.
+//
+// It receives as argument the YATAS config of the user and returns the results
+// of all the checks executed.
 func (g *YatasPlugin) Run(c *commons.Config) []commons.Tests {
+	// Set the global logger to the one used by the plugin
 	logger.Logger = g.logger
-	var err error
-	if err != nil {
-		panic(err)
-	}
+
+	// TODO: How to read the config?
+	// var err error
+	// if err != nil {
+	// 	panic(err)
+	// }
+
 	var checksAll []commons.Tests
 
-	checks, err := runPlugin(c, "template")
+	checks, err := runPlugin(c, PluginName)
 	if err != nil {
 		logger.Logger.Error("Error running plugins", "error", err)
 	}
+
+	// TODO: Comment
 	checksAll = append(checksAll, checks...)
 	return checksAll
 }
@@ -43,35 +58,49 @@ var handshakeConfig = plugin.HandshakeConfig{
 	MagicCookieValue: "hello",
 }
 
+// You do not need to change this function.
+// This is the main entrypoint for the program, which launches the plugin RPC
+// server.
 func main() {
+	// Register the types that will be used serialized and deserialized
+	// and used in the RPC communication
 	gob.Register([]interface{}{})
 	gob.Register(map[string]interface{}{})
+
+	// Here we setup the logger that will be used by the plugin and whose
+	// output will be transmitted via RPC to YATAS
 	logger := hclog.New(&hclog.LoggerOptions{
 		Level:      hclog.Trace,
 		Output:     os.Stderr,
 		JSONFormat: true,
 	})
 
+	// Create an instance of YatasPlugin, which implements the Plugin interface
+	// from hashicorp/go-plugin.
 	yatasPlugin := &YatasPlugin{
 		logger: logger,
 	}
-	// pluginMap is the map of plugins we can dispense.
-	// Name of your plugin
+
+	// `pluginMap` is the map of plugins we can dispense.
+	// Just this plugin in our case.
 	var pluginMap = map[string]plugin.Plugin{
-		"template": &commons.YatasPlugin{Impl: yatasPlugin},
+		PluginName: &commons.YatasPlugin{Impl: yatasPlugin},
 	}
 
+	// Launch the plugin RPC server
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: handshakeConfig,
 		Plugins:         pluginMap,
 	})
 }
 
-// Function that runs the checks or things to dot
+// TODO: Refacto?
+// Function that runs the checks or things to do.
 func runPlugin(c *commons.Config, plugin string) ([]commons.Tests, error) {
 	var checksAll []commons.Tests
 
 	// Run the checks here
+	// TODO: placeholder?
 
 	return checksAll, nil
 }
