@@ -6,7 +6,10 @@
     ":semanticCommitTypeAll(chore)"
   ],
   "platformAutomerge": true,
-  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ],
   "packageRules": [
     {
       "matchPackagePatterns": [
@@ -17,16 +20,6 @@
       ],
       "groupName": "all patch dependencies",
       "groupSlug": "all-patch"
-    },
-    {
-      "matchPackagePatterns": [
-        "github.com/aws/aws-sdk-go-v2/service/*"
-      ],
-      "matchUpdateTypes": [
-        "minor"
-      ],
-      "groupName": "all minor aws dependencies",
-      "groupSlug": "all-minor-aws"
     }
   ],
   "semanticCommits": "enabled"

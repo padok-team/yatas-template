@@ -7,26 +7,47 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 
-	"github.com/stangirard/yatas/plugins/commons"
+	"github.com/padok-team/yatas-template/internal"
+	"github.com/padok-team/yatas-template/logger"
+	"github.com/padok-team/yatas/plugins/commons"
 )
 
 type YatasPlugin struct {
 	logger hclog.Logger
 }
 
-// Don't remove this function
+// Don't remove this function.
+// This function is called by YATAS through the RPC.
+// This is the entrypoint of the plugin.
+//
+// It receives as argument the YATAS config of the user and returns the results
+// of all the checks executed.
 func (g *YatasPlugin) Run(c *commons.Config) []commons.Tests {
-	g.logger.Debug("message from Yatas Template Plugin")
+	// Set the global logger to the one used by the plugin
+	logger.Logger = g.logger
+
+	// Read the configuration sent by YATAS to retrieve a common account
+	// configuration that you can use in your checks to make API calls to a
+	// cloud provider for example
+	var accounts []internal.FakeAccount
 	var err error
+	accounts, err = internal.UnmarshalConfig(c)
 	if err != nil {
-		panic(err)
+		logger.Logger.Error("Error unmarshaling accounts", "error", err)
+		return nil
 	}
+
+	// TODO: Sent the `accounts` variable to the checks
+	logger.Logger.Info("Accounts", "accounts", accounts)
+
 	var checksAll []commons.Tests
 
-	checks, err := runPlugin(c, "template")
+	checks, err := runPlugin(c)
 	if err != nil {
-		g.logger.Error("Error running plugins", "error", err)
+		logger.Logger.Error("Error running plugins", "error", err)
 	}
+
+	// TODO: Comment
 	checksAll = append(checksAll, checks...)
 	return checksAll
 }
@@ -41,37 +62,49 @@ var handshakeConfig = plugin.HandshakeConfig{
 	MagicCookieValue: "hello",
 }
 
+// You do not need to change this function.
+// This is the main entrypoint for the program, which launches the plugin RPC
+// server.
 func main() {
+	// Register the types that will be used serialized and deserialized
+	// and used in the RPC communication
 	gob.Register([]interface{}{})
 	gob.Register(map[string]interface{}{})
+
+	// Here we setup the logger that will be used by the plugin and whose
+	// output will be transmitted via RPC to YATAS
 	logger := hclog.New(&hclog.LoggerOptions{
 		Level:      hclog.Trace,
 		Output:     os.Stderr,
 		JSONFormat: true,
 	})
 
+	// Create an instance of YatasPlugin, which implements the Plugin interface
+	// from hashicorp/go-plugin.
 	yatasPlugin := &YatasPlugin{
 		logger: logger,
 	}
-	// pluginMap is the map of plugins we can dispense.
-	// Name of your plugin
+
+	// `pluginMap` is the map of plugins we can dispense.
+	// Just this plugin in our case.
 	var pluginMap = map[string]plugin.Plugin{
-		"template": &commons.YatasPlugin{Impl: yatasPlugin},
+		internal.PluginName: &commons.YatasPlugin{Impl: yatasPlugin},
 	}
 
-	logger.Debug("message from plugin", "foo", "bar")
-
+	// Launch the plugin RPC server
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: handshakeConfig,
 		Plugins:         pluginMap,
 	})
 }
 
-// Function that runs the checks or things to dot
-func runPlugin(c *commons.Config, plugin string) ([]commons.Tests, error) {
+// TODO: Refacto?
+// Function that runs the checks or things to do.
+func runPlugin(c *commons.Config) ([]commons.Tests, error) {
 	var checksAll []commons.Tests
 
 	// Run the checks here
+	// TODO: placeholder?
 
 	return checksAll, nil
 }
