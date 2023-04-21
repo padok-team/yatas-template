@@ -12,11 +12,6 @@ import (
 	"github.com/padok-team/yatas/plugins/commons"
 )
 
-// Global variable that stores the plugin name
-//
-// TODO: Change the name of the plugin
-var PluginName string = "template"
-
 type YatasPlugin struct {
 	logger hclog.Logger
 }
@@ -47,7 +42,7 @@ func (g *YatasPlugin) Run(c *commons.Config) []commons.Tests {
 
 	var checksAll []commons.Tests
 
-	checks, err := runPlugin(c, PluginName)
+	checks, err := runPlugin(c)
 	if err != nil {
 		logger.Logger.Error("Error running plugins", "error", err)
 	}
@@ -93,7 +88,7 @@ func main() {
 	// `pluginMap` is the map of plugins we can dispense.
 	// Just this plugin in our case.
 	var pluginMap = map[string]plugin.Plugin{
-		PluginName: &commons.YatasPlugin{Impl: yatasPlugin},
+		internal.PluginName: &commons.YatasPlugin{Impl: yatasPlugin},
 	}
 
 	// Launch the plugin RPC server
@@ -105,7 +100,7 @@ func main() {
 
 // TODO: Refacto?
 // Function that runs the checks or things to do.
-func runPlugin(c *commons.Config, plugin string) ([]commons.Tests, error) {
+func runPlugin(c *commons.Config) ([]commons.Tests, error) {
 	var checksAll []commons.Tests
 
 	// Run the checks here
