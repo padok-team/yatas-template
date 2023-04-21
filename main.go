@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 
+	"github.com/padok-team/yatas-template/internal"
 	"github.com/padok-team/yatas-template/logger"
 	"github.com/padok-team/yatas/plugins/commons"
 )
@@ -30,11 +31,19 @@ func (g *YatasPlugin) Run(c *commons.Config) []commons.Tests {
 	// Set the global logger to the one used by the plugin
 	logger.Logger = g.logger
 
-	// TODO: How to read the config?
-	// var err error
-	// if err != nil {
-	// 	panic(err)
-	// }
+	// Read the configuration sent by YATAS to retrieve a common account
+	// configuration that you can use in your checks to make API calls to a
+	// cloud provider for example
+	var accounts []internal.FakeAccount
+	var err error
+	accounts, err = internal.UnmarshalConfig(c)
+	if err != nil {
+		logger.Logger.Error("Error unmarshaling accounts", "error", err)
+		return nil
+	}
+
+	// TODO: Sent the `accounts` variable to the checks
+	logger.Logger.Info("Accounts", "accounts", accounts)
 
 	var checksAll []commons.Tests
 

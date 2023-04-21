@@ -1,0 +1,10 @@
+plugins:
+  - name: "template"
+    enabled: true
+    source: "github.com/padok-team/yatas-template"
+    version: "local"
+
+pluginsConfiguration:
+  - pluginName: "template"
+    accounts:
+      - region: "eu-west-3"
