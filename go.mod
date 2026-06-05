@@ -4,8 +4,8 @@ go 1.24
 
 require (
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/hashicorp/go-plugin v1.8.0
-	github.com/padok-team/yatas v1.5.1
+	github.com/hashicorp/go-plugin v1.4.10
+	github.com/padok-team/yatas v1.6.1
 )
 
 require (
