@@ -1,15 +1,25 @@
 dependencies:
-- go.mod
-- go.sum
+  - changed-files:
+      - any-glob-to-any-file:
+          - go.mod
+          - go.sum
 
 main:
-- main.go
+  - changed-files:
+      - any-glob-to-any-file:
+          - main.go
 
 makefile:
-- Makefile
+  - changed-files:
+      - any-glob-to-any-file:
+          - Makefile
 
 readme:
-- README.md
+  - changed-files:
+      - any-glob-to-any-file:
+          - README.md
 
 github-actions:
-- .github/workflows/*
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/workflows/*
