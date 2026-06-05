@@ -3,7 +3,7 @@ module github.com/padok-team/yatas-template
 go 1.20
 
 require (
-	github.com/hashicorp/go-hclog v1.5.0
+	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-plugin v1.4.10
 	github.com/padok-team/yatas v1.5.1
 )
