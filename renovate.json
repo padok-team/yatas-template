@@ -6,7 +6,10 @@
     ":semanticCommitTypeAll(chore)"
   ],
   "platformAutomerge": true,
-  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ],
   "packageRules": [
     {
       "matchPackagePatterns": [

@@ -7,13 +7,13 @@ build:
 	go build -o bin/yatas-template
 
 update:
-	go get -u 
+	go get -u
 	go mod tidy
 
 install: build
-	mkdir -p ~/.yatas.d/plugins/github.com/StanGirard/yatas-template/local/
-	mv ./bin/yatas-template ~/.yatas.d/plugins/github.com/StanGirard/yatas-template/local/
+	mkdir -p ~/.yatas.d/plugins/github.com/padok-team/yatas-template/local/
+	mv ./bin/yatas-template ~/.yatas.d/plugins/github.com/padok-team/yatas-template/local/
 
 release: test
-	standard-version
-	git push --follow-tags origin main 
+	npx standard-version
+	git push --follow-tags origin main
