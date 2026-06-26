@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/gob"
 	"os"
+	"sync"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 
+	"github.com/padok-team/yatas-template/checks/example"
 	"github.com/padok-team/yatas-template/internal"
 	"github.com/padok-team/yatas-template/logger"
 	"github.com/padok-team/yatas/plugins/commons"
@@ -29,27 +31,72 @@ func (g *YatasPlugin) Run(c *commons.Config) []commons.Tests {
 	// Read the configuration sent by YATAS to retrieve a common account
 	// configuration that you can use in your checks to make API calls to a
 	// cloud provider for example
-	var accounts []internal.FakeAccount
-	var err error
-	accounts, err = internal.UnmarshalConfig(c)
+	targets, err := internal.UnmarshalConfig(c)
 	if err != nil {
-		logger.Logger.Error("Error unmarshaling accounts", "error", err)
+		logger.Logger.Error("Error unmarshaling config", "error", err)
 		return nil
 	}
 
-	// TODO: Sent the `accounts` variable to the checks
-	logger.Logger.Info("Accounts", "accounts", accounts)
+	return run(c, targets)
+}
 
-	var checksAll []commons.Tests
+// run audits every target concurrently. A queue + wait group collect the results
+// so targets never block one another.
+func run(c *commons.Config, targets []internal.Target) []commons.Tests {
+	var wg sync.WaitGroup
+	queue := make(chan commons.Tests, 10)
+	var checks []commons.Tests
 
-	checks, err := runPlugin(c)
-	if err != nil {
-		logger.Logger.Error("Error running plugins", "error", err)
+	wg.Add(len(targets))
+	for _, target := range targets {
+		go runTestsForTarget(target, c, queue)
 	}
 
-	// TODO: Comment
-	checksAll = append(checksAll, checks...)
-	return checksAll
+	go func() {
+		for t := range queue {
+			checks = append(checks, t)
+			wg.Done()
+		}
+	}()
+
+	wg.Wait()
+	return checks
+}
+
+func runTestsForTarget(target internal.Target, c *commons.Config, queue chan commons.Tests) {
+	session := initSession(target)
+	queue <- initTest(session, c, target)
+}
+
+// initSession authenticates against the target and returns a ready-to-use client
+// (≈ yatas-aws's initAuth). Build your real client here.
+func initSession(target internal.Target) internal.Session {
+	logger.Logger.Debug("Init session", "target", target.Name)
+	// TODO: build and return your client, e.g. kubernetes.NewForConfig(...).
+	return internal.Session{Target: target}
+}
+
+// initTest runs every check category for one target and aggregates their checks.
+// Add one `go commons.CheckMacroTest(...)` line per category you create under
+// checks/ (this is the only place to register a category).
+func initTest(s internal.Session, c *commons.Config, target internal.Target) commons.Tests {
+	var checks commons.Tests
+	checks.Account = target.Name
+
+	var wg sync.WaitGroup
+	queue := make(chan []commons.Check, 100)
+
+	go commons.CheckMacroTest(&wg, c, example.RunChecks)(&wg, s, c, queue)
+
+	go func() {
+		for t := range queue {
+			checks.Checks = append(checks.Checks, t...)
+			wg.Done()
+		}
+	}()
+
+	wg.Wait()
+	return checks
 }
 
 // handshakeConfigs are used to just do a basic handshake between
@@ -96,15 +143,4 @@ func main() {
 		HandshakeConfig: handshakeConfig,
 		Plugins:         pluginMap,
 	})
-}
-
-// TODO: Refacto?
-// Function that runs the checks or things to do.
-func runPlugin(c *commons.Config) ([]commons.Tests, error) {
-	var checksAll []commons.Tests
-
-	// Run the checks here
-	// TODO: placeholder?
-
-	return checksAll, nil
 }

@@ -5,40 +5,58 @@ import (
 	"github.com/padok-team/yatas/plugins/commons"
 )
 
-// This function decodes the plugin configuration sent by YATAS to retrieve the
-// fields this plugin needs and returns a slice of account configurations.
-func UnmarshalConfig(c *commons.Config) ([]FakeAccount, error) {
-	var accounts []FakeAccount
-	var pluginConfig map[string]interface{}
+// UnmarshalConfig decodes the plugin configuration YATAS reads from `.yatas.yml`
+// into the list of targets to audit.
+//
+// YATAS hands every plugin's config to every plugin, so we first pick the block
+// whose `pluginName` matches ours, then turn each entry under `accounts` into a
+// Target. Extend the inner switch to read each field you add to Target.
+func UnmarshalConfig(c *commons.Config) ([]Target, error) {
+	var targets []Target
 
-	// YATAS sends all the plugin configs of `.yatas.yml`, we iterate over them
-	// and find the one that matches the name of the plugin
-	logger.Logger.Debug("Searching for plugin config")
+	// 1. Find this plugin's configuration block.
+	var pluginConfig map[string]interface{}
 	for _, config := range c.PluginConfig {
 		if config["pluginName"] == PluginName {
-			logger.Logger.Debug("Plugin config found ✅")
 			pluginConfig = config
 		}
 	}
-
-	accountsConfig := pluginConfig["accounts"]
-	// Iterate over the accounts associated to the plugin
-	for _, acc := range accountsConfig.([]interface{}) {
-		var account FakeAccount
-		logger.Logger.Debug("Inspecting account", "account", acc)
-		for key, value := range acc.(map[string]interface{}) {
-			// TODO: Add in this switch-case the fields of the plugin config you
-			// want to read from
-			switch key {
-			case "region":
-				account.Region = value.(string)
-			}
-		}
-		accounts = append(accounts, account)
+	if pluginConfig == nil {
+		logger.Logger.Error("No configuration found for plugin", "plugin", PluginName)
+		return targets, nil
 	}
 
-	logger.Logger.Debug("Unmarshal Done ✅")
-	logger.Logger.Debug("All accounts", "accounts", accounts)
-	logger.Logger.Debug("Length of accounts", "len", len(accounts))
-	return accounts, nil
+	// 2. Read the list of targets to audit.
+	accounts, ok := pluginConfig["accounts"].([]interface{})
+	if !ok {
+		logger.Logger.Error("No `accounts` list found in plugin config")
+		return targets, nil
+	}
+
+	// 3. Decode each entry into a Target.
+	for _, entry := range accounts {
+		fields, ok := entry.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		var target Target
+		for key, value := range fields {
+			// TODO: add a case for every field you add to the Target struct.
+			switch key {
+			case "name":
+				target.Name, _ = value.(string)
+			// case "server":
+			// 	target.Server, _ = value.(string)
+			// case "token":
+			// 	target.Token, _ = value.(string)
+			default:
+				logger.Logger.Warn("Unknown field in target config", "field", key)
+			}
+		}
+		targets = append(targets, target)
+	}
+
+	logger.Logger.Debug("Targets to audit", "targets", targets)
+	return targets, nil
 }

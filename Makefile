@@ -15,5 +15,5 @@ install: build
 	mv ./bin/yatas-template ~/.yatas.d/plugins/github.com/padok-team/yatas-template/local/
 
 release: test
-	npx standard-version
+	npm run release
 	git push --follow-tags origin main

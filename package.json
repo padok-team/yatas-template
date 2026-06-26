@@ -1,5 +1,26 @@
 {
+  "name": "yatas-template",
+  "version": "0.0.0",
+  "description": "Yet Another Testing &amp; Auditing Solution - plugin template",
+  "scripts": {
+    "release": "standard-version"
+  },
+  "standard-version": {
+    "skip": {
+      "changelog": false
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/padok-team/yatas-template.git"
+  },
+  "author": "padok-team",
+  "bugs": {
+    "url": "https://github.com/padok-team/yatas-template/issues"
+  },
+  "homepage": "https://github.com/padok-team/yatas-template#readme",
   "devDependencies": {
     "standard-version": "^9.5.0"
-  }
+  },
+  "license": "Apache-2.0"
 }

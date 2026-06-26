@@ -6,5 +6,10 @@ plugins:
 
 pluginsConfiguration:
   - pluginName: "template"
+    # Each entry under `accounts` is one target to audit. `name` labels it in the
+    # report; add your own connection fields (server, token, context, ...) and
+    # read them in internal/UnmarshalConfig.
     accounts:
-      - region: "eu-west-3"
+      - name: "my-target"
+        # server: "https://api.example.com"
+        # token:  "${API_TOKEN}"
