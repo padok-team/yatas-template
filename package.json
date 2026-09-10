@@ -1,5 +1,5 @@
 {
   "devDependencies": {
-    "standard-version": "^9.5.0"
+    "commit-and-tag-version": "^9.5.0"
   }
 }
